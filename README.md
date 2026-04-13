@@ -29,6 +29,8 @@ Some prompts to answer:
 
 You can include a simple diagram or bullet list if helpful.
 
+- The way my system will work is that it will not only having a scoring ruleset to follow, but also a ranking system. The scoring rule will be evaluating songs independently, relative to a user's preference. It will be asking the question of "How close is this song to the user's favorite genre, mood, energy, etc..?" I am going to be treating this as the core functionality, but another ruleset to follow as the secondary is going to to be a ranking ruleset, ordering al ist of songs. It will be taking the scores for many songs and sorting them to decide which ones to show first. It is extremely important in my opinion because the user should be able to see songs in a top 5 ranking and how they compare against eachother, so the user can find songs as close as possible to their liking. It all comes together by scoring each song (primary), then ranking the scored songs(secondary), then presenting the highest-ranked reccomendations. 
+
 ---
 
 ## Getting Started
