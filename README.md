@@ -9,6 +9,10 @@
 Phase 4 screenshot
 <img width="759" height="263" alt="Screenshot 2026-04-13 at 9 49 52 PM" src="https://github.com/user-attachments/assets/10aac16f-10d2-4929-9356-11c624bc5ce8" />
 
+The small data experiment of the feature removal of removing "mood" temporarily did NOT change around any song rankings. It just lowered their scores overall. 
+
+<img width="737" height="308" alt="Screenshot 2026-04-13 at 9 54 52 PM" src="https://github.com/user-attachments/assets/ba49a4c5-e273-4269-8910-c2e6654f9f22" />
+
 
 
 In this project you will build and explain a small music recommender system.
