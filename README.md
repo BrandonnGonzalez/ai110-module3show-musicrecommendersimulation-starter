@@ -2,6 +2,15 @@
 
 ## Project Summary
 
+
+### Phase 3 screenshot
+<img width="736" height="283" alt="Screenshot 2026-04-13 at 9 30 12 PM" src="https://github.com/user-attachments/assets/e6461356-d445-4718-b29b-ac761fcda8cf" />
+
+Phase 4 screenshot
+<img width="759" height="263" alt="Screenshot 2026-04-13 at 9 49 52 PM" src="https://github.com/user-attachments/assets/10aac16f-10d2-4929-9356-11c624bc5ce8" />
+
+
+
 In this project you will build and explain a small music recommender system.
 
 Your goal is to:
