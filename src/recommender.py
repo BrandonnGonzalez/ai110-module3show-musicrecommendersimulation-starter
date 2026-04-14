@@ -100,32 +100,32 @@ def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
 
     if song["genre"].lower() == user_prefs.get("favorite_genre", "").lower():
         score += 2.0
-        reasons.append("genre match")
+        reasons.append("genre match (+2.0)")
 
     if song["mood"].lower() == user_prefs.get("favorite_mood", "").lower():
         score += 1.0
-        reasons.append("mood match")
+        reasons.append("mood match (+1.0)")
 
     energy_score = _similarity(user_prefs.get("target_energy", 0.0), song["energy"], 1.0) * 1.0
     if energy_score > 0:
         score += energy_score
-        reasons.append(f"energy similarity ({energy_score:.2f})")
+        reasons.append(f"energy similarity (+{energy_score:.2f})")
 
     tempo_score = _similarity(user_prefs.get("target_tempo", 0.0), song["tempo_bpm"], 200.0) * 0.5
     if tempo_score > 0:
         score += tempo_score
-        reasons.append(f"tempo similarity ({tempo_score:.2f})")
+        reasons.append(f"tempo similarity (+{tempo_score:.2f})")
 
     valence_score = _similarity(user_prefs.get("target_valence", 0.0), song["valence"], 1.0) * 0.5
     if valence_score > 0:
         score += valence_score
-        reasons.append(f"valence similarity ({valence_score:.2f})")
+        reasons.append(f"valence similarity (+{valence_score:.2f})")
 
     if user_prefs.get("likes_acoustic", False):
         acoustic_score = song.get("acousticness", 0.0) * 1.0
         if acoustic_score > 0:
             score += acoustic_score
-            reasons.append(f"acousticness bonus ({acoustic_score:.2f})")
+            reasons.append(f"acousticness bonus (+{acoustic_score:.2f})")
 
     return score, reasons
 
