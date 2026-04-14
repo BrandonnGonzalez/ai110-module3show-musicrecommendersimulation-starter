@@ -102,9 +102,10 @@ def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
         score += 2.0
         reasons.append("genre match (+2.0)")
 
-    if song["mood"].lower() == user_prefs.get("favorite_mood", "").lower():
-        score += 1.0
-        reasons.append("mood match (+1.0)")
+    # Temporarily remove mood as a feature to test ranking changes.
+    # if song["mood"].lower() == user_prefs.get("favorite_mood", "").lower():
+    #     score += 1.0
+    #     reasons.append("mood match (+1.0)")
 
     energy_score = _similarity(user_prefs.get("target_energy", 0.0), song["energy"], 1.0) * 1.0
     if energy_score > 0:
@@ -174,3 +175,110 @@ def _user_profile_to_prefs(user: UserProfile) -> Dict:
         "target_valence": user.target_valence,
         "likes_acoustic": user.likes_acoustic,
     }
+
+
+
+
+
+
+# Edge case user profiles to test potential logic issues
+
+CONFLICTING_ENERGY_MOOD = {
+    "favorite_genre": "pop",
+    "favorite_mood": "sad",
+    "target_energy": 0.9,  # High energy
+    "target_tempo": 130.0,
+    "target_valence": 0.2,  # Low valence (sad), conflicting with high energy
+    "likes_acoustic": False,
+}
+
+CONFLICTING_ACOUSTIC_ENERGY = {
+    "favorite_genre": "folk",
+    "favorite_mood": "chill",
+    "target_energy": 0.95,  # Very high energy
+    "target_tempo": 120.0,
+    "target_valence": 0.5,
+    "likes_acoustic": True,  # Likes acoustic but high energy (conflicting)
+}
+
+LOW_VALENCE_HAPPY_MOOD = {
+    "favorite_genre": "pop",
+    "favorite_mood": "happy",
+    "target_energy": 0.5,
+    "target_tempo": 100.0,
+    "target_valence": 0.1,  # Very low valence but happy mood (conflicting)
+    "likes_acoustic": False,
+}
+
+INVALID_GENRE = {
+    "favorite_genre": "nonexistent_genre",  # Genre that likely doesn't exist in data
+    "favorite_mood": "happy",
+    "target_energy": 0.7,
+    "target_tempo": 120.0,
+    "target_valence": 0.8,
+    "likes_acoustic": False,
+}
+
+EXTREME_HIGH_VALUES = {
+    "favorite_genre": "rock",
+    "favorite_mood": "intense",
+    "target_energy": 1.0,  # Maximum energy
+    "target_tempo": 200.0,  # Very high tempo
+    "target_valence": 1.0,  # Maximum valence
+    "likes_acoustic": False,
+}
+
+ALL_ZERO_VALUES = {
+    "favorite_genre": "pop",
+    "favorite_mood": "neutral",
+    "target_energy": 0.0,  # Minimum energy
+    "target_tempo": 0.0,  # Zero tempo (edge case)
+    "target_valence": 0.0,  # Minimum valence
+    "likes_acoustic": False,
+}
+
+NEGATIVE_VALUES = {
+    "favorite_genre": "electronic",
+    "favorite_mood": "weird",
+    "target_energy": -0.5,  # Negative energy (invalid but test robustness)
+    "target_tempo": -50.0,  # Negative tempo
+    "target_valence": -0.2,  # Negative valence
+    "likes_acoustic": True,
+}
+
+EMPTY_STRINGS = {
+    "favorite_genre": "",  # Empty genre
+    "favorite_mood": "",  # Empty mood
+    "target_energy": 0.5,
+    "target_tempo": 100.0,
+    "target_valence": 0.5,
+    "likes_acoustic": False,
+}
+
+# Example user preference dictionaries for testing
+HIGH_ENERGY_POP = {
+    "favorite_genre": "pop",
+    "favorite_mood": "happy",
+    "target_energy": 0.9,
+    "target_tempo": 130.0,
+    "target_valence": 0.9,
+    "likes_acoustic": False,
+}
+
+CHILL_LOFI = {
+    "favorite_genre": "lofi",
+    "favorite_mood": "chill",
+    "target_energy": 0.3,
+    "target_tempo": 80.0,
+    "target_valence": 0.6,
+    "likes_acoustic": True,
+}
+
+DEEP_INTENSE_ROCK = {
+    "favorite_genre": "rock",
+    "favorite_mood": "intense",
+    "target_energy": 0.95,
+    "target_tempo": 150.0,
+    "target_valence": 0.3,
+    "likes_acoustic": False,
+}

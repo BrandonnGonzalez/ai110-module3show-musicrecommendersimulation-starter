@@ -70,20 +70,15 @@ Prompts:
 - Cases where the system overfits to one preference  
 - Ways the scoring might unintentionally favor some users  
 
+- The current scoring logic creates a bias toward genre matches and broad energy/tempo similarity rather than truly capturing niche preferences. Because energy_score is calculated as 1 - abs(target - energy) on a 0–1 scale, almost every song still gets a positive energy contribution, so extreme or unusual energy tastes are not sharply separated. In other words, if a user wants very low energy, a mid-energy song still receives a nonzero score and can compete with better matches, which favors songs that are “close enough” rather than a real preference fit. This can produce a filter bubble where users with nonstandard mood or acoustic preferences are ignored in favor of songs that simply share genre and average energy/tempo.
+
 ---
 
 ## 7. Evaluation  
 
 How you checked whether the recommender behaved as expected. 
 
-Prompts:  
-
-- Which user profiles you tested  
-- What you looked for in the recommendations  
-- What surprised you  
-- Any simple tests or comparisons you ran  
-
-No need for numeric metrics unless you created some.
+I tested several user profiles including HIGH_ENERGY_POP (favoring pop genre, happy mood, high energy 0.9, tempo 130, valence 0.9, no acoustic preference), CHILL_LOFI (favoring lofi genre, chill mood, low energy 0.3, tempo 80, valence 0.6, likes acoustic), and DEEP_INTENSE_ROCK (favoring rock genre, intense mood, high energy 0.95, tempo 150, valence 0.3, no acoustic preference). I looked for whether the top recommendations aligned with the user's preferences in genre, energy levels, tempo, valence, and acousticness, checking if the rankings made intuitive sense based on the scoring logic. What surprised me was that even after temporarily removing the mood feature from the scoring, the system still heavily favored genre matches (weighted at 2.0 points), which overshadowed other preferences like low energy or acoustic liking, leading to less diverse recommendations for niche users and highlighting how the linear similarity functions allow "close enough" matches to dominate over exact fits.
 
 ---
 
