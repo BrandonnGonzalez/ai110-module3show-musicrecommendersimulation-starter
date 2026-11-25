@@ -71,7 +71,7 @@ pip install -r requirements.txt
 3. Run the app:
 
 ```bash
-python -m src.main
+python src/main.py
 ```
 
 ### Running Tests
@@ -79,7 +79,7 @@ python -m src.main
 Run the starter tests with:
 
 ```bash
-pytest
+python -m pytest
 ```
 
 You can add more tests in `tests/test_recommender.py`.
@@ -88,15 +88,25 @@ You can add more tests in `tests/test_recommender.py`.
 
 ## Sample Recommendation Output
 
-Paste a sample of your recommender's output here as a text block so a reader can see what it produces:
+Output from `python src/main.py` for the starter profile (genre=trap, mood=intense, energy=0.85, valence=0.50, likes_acoustic not set):
 
 ```
-# e.g.:
-# User profile: genre=indie, mood=chill, energy=low
-# Recommendations:
-#   1. ...
-#   2. ...
-#   3. ...
+Top recommendations:
+
+Storm Runner - Score: 0.74
+Because: energy: song 0.91 vs target 0.85 -> closeness 0.88 x weight 0.35; valence: song 0.48 vs target 0.50 -> closeness 0.96 x weight 0.15; mood: song 'intense' vs target 'intense' -> match x weight 0.25; genre: song 'rock' vs target 'trap' -> no match x weight 0.20
+
+Lord Of Chaos - Score: 0.68
+Because: energy: song 0.93 vs target 0.85 -> closeness 0.84 x weight 0.35; valence: song 0.35 vs target 0.50 -> closeness 0.70 x weight 0.15; mood: song 'intense' vs target 'intense' -> match x weight 0.25; genre: song 'rage' vs target 'trap' -> no match x weight 0.20
+
+Bada Bing, Bada Bøøm - Score: 0.67
+Because: energy: song 0.85 vs target 0.85 -> closeness 1.00 x weight 0.35; valence: song 0.72 vs target 0.50 -> closeness 0.56 x weight 0.15; mood: song 'happy' vs target 'intense' -> no match x weight 0.25; genre: song 'trap' vs target 'trap' -> match x weight 0.20
+
+All Stars - Score: 0.65
+Because: energy: song 0.78 vs target 0.85 -> closeness 0.86 x weight 0.35; valence: song 0.62 vs target 0.50 -> closeness 0.76 x weight 0.15; mood: song 'confident' vs target 'intense' -> no match x weight 0.25; genre: song 'trap' vs target 'trap' -> match x weight 0.20
+
+Gym Hero - Score: 0.65
+Because: energy: song 0.93 vs target 0.85 -> closeness 0.84 x weight 0.35; valence: song 0.77 vs target 0.50 -> closeness 0.46 x weight 0.15; mood: song 'intense' vs target 'intense' -> match x weight 0.25; genre: song 'pop' vs target 'trap' -> no match x weight 0.20
 ```
 
 **Screenshot or video** *(optional)*: <!-- Insert a screenshot or demo video link here -->
