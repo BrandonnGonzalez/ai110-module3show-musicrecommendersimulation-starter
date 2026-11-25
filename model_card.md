@@ -32,6 +32,22 @@ Prompts:
 
 Avoid code here. Pretend you are explaining the idea to a friend who does not program.
 
+**The short version:** The system compares every song in the catalog to a listener's taste, gives each song a score from 0 to 1, and shows the five highest-scoring songs.
+
+**What it looks at.** Each song has a genre, a mood, and three numbers: energy, valence (how happy or positive a song sounds), and acousticness (how much it sounds acoustic rather than electronic). The listener describes their taste with a favorite genre, a favorite mood, a target energy level, an optional target valence, and a yes or no answer to whether they like acoustic music. The system also stores tempo and danceability for each song, but it does not use them when scoring yet.
+
+**How a score is built.** The system checks each feature one at a time and gives it points:
+
+- **Numbers get points for being close.** If a song's energy is exactly the listener's target, it earns full points. The farther away it is, the fewer points it earns, and a gap of half the scale or more earns nothing. Energy counts the most, then valence, then acousticness.
+- **Labels get points for matching.** A song earns full points for mood if its mood is the listener's mood, and full points for genre if its genre is the listener's genre. Otherwise it earns nothing. Mood counts a little more than genre.
+- **The total is averaged by importance.** Every feature has a weight. The points are added up and divided by the total weight of the features the listener actually gave. This keeps the score on the same 0 to 1 scale even when a listener only fills in a few preferences.
+
+If a listener does not give a preference, that feature is skipped. It does not count as a miss.
+
+**Ranking and explanations.** The system sorts all songs from highest score to lowest. Songs with the same score stay in the order they appear in the catalog. Along with each song, the system lists how each feature contributed, so a listener can see why a song ranked where it did.
+
+**Why these weights.** Energy has the most weight because it is the clearest signal of how a song feels to listen to. Mood comes next, and genre comes after it. Taken together, mood and genre carry more weight than energy (0.45 against 0.35), so a song that matches the listener's mood and genre can rank above a song with a slightly closer energy level.
+
 ---
 
 ## 4. Data  
