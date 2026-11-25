@@ -15,15 +15,18 @@ from recommender import load_songs, recommend_songs
 def main() -> None:
     songs = load_songs("data/songs.csv") 
 
-    # Starter example profile. Only the numeric preferences (energy, valence,
-    # likes_acoustic) are scored so far; genre and mood scoring comes next.
-    user_prefs = {
-        "genre": "pop",
-        "mood": "happy",
-        "energy": 0.8,
-        "valence": 0.8,
-        "likes_acoustic": False,
+    # User profile: target values for each feature in data/songs.csv.
+    # Numeric targets use the same 0-1 scale as the song data. tempo_bpm is in BPM.
+    user_profile = {
+        "genre": "trap",
+        "mood": "intense",
+        "energy": 0.85,
+        "tempo_bpm": 135,
+        "valence": 0.50,
+        "danceability": 0.75,
+        "acousticness": 0.10,
     }
+    user_prefs = user_profile
 
     recommendations = recommend_songs(user_prefs, songs, k=5)
 
