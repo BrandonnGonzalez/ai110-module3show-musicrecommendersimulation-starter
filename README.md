@@ -17,17 +17,11 @@ Replace this paragraph with your own summary of what your version does.
 
 ## How The System Works
 
-Explain your design in plain language.
+Real streaming services such as Spotify and YouTube recommend songs by combining two kinds of signals. Collaborative filtering looks at what similar listeners played, and content-based filtering looks at how songs sound and how they are labeled. This version uses only content-based filtering. It compares each song's attributes to a user's stated taste, and it gives the most weight to energy, then mood, genre, valence (how positive a song sounds), and acousticness. Each numeric feature is scored by how close the song is to the user's target, not by whether the value is high or low. Songs are ranked by their total score, and the top results are returned with an explanation.
 
-Some prompts to answer:
+**Features used by `Song`:** `id`, `title`, `artist`, `genre`, `mood`, `energy`, `tempo_bpm`, `valence`, `danceability`, `acousticness`. Only `energy`, `valence`, and `acousticness` are scored so far, and `genre` and `mood` are scored once categorical matching is added. `tempo_bpm` and `danceability` are loaded but not yet scored.
 
-- What features does each `Song` use in your system
-  - For example: genre, mood, energy, tempo
-- What information does your `UserProfile` store
-- How does your `Recommender` compute a score for each song
-- How do you choose which songs to recommend
-
-You can include a simple diagram or bullet list if helpful.
+**Information stored by `UserProfile`:** `favorite_genre`, `favorite_mood`, `target_energy`, `likes_acoustic`, and the optional `target_valence`. `likes_acoustic` is converted to an acousticness target of 0.80 when true and 0.20 when false.
 
 ---
 
