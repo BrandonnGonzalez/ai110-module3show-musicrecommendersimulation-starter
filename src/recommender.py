@@ -8,12 +8,19 @@ from dataclasses import dataclass, asdict
 # far (or farther) from the user's target earns 0 points for that feature.
 DEFAULT_WIDTH = 0.5
 
-# Weights for the numeric features. Mood (0.25) and genre (0.20) will be added
-# when categorical scoring is implemented.
+# Weights for the numeric features (scored by proximity to the user's target).
 NUMERIC_WEIGHTS: Dict[str, float] = {
     "energy": 0.35,
     "valence": 0.15,
     "acousticness": 0.05,
+}
+
+# Weights for the categorical features (exact match = 1.0, otherwise 0.0).
+# Mood ranks second after energy, then genre. Together they total 0.45, so a
+# song matching both can beat a song with closer energy.
+CATEGORICAL_WEIGHTS: Dict[str, float] = {
+    "mood": 0.25,
+    "genre": 0.20,
 }
 
 # `likes_acoustic` is turned into an acousticness target on the 0-1 scale.
@@ -90,15 +97,48 @@ def numeric_targets(user_prefs: Dict) -> Dict[str, float]:
     return targets
 
 
-def score_numeric_features(
-    user_prefs: Dict, song: Dict, width: float = DEFAULT_WIDTH
-) -> Tuple[float, List[str]]:
+def categorical_match(value: str, target: str) -> float:
+    """1.0 if the two labels are equal (ignoring case and surrounding spaces), else 0.0."""
+    return 1.0 if str(value).strip().lower() == str(target).strip().lower() else 0.0
+
+
+def _weighted_categorical(user_prefs: Dict, song: Dict) -> Tuple[float, float, List[str]]:
+    """Returns (weighted_sum, active_weight, reasons) for mood and genre."""
+    weighted_sum = 0.0
+    active_weight = 0.0
+    reasons: List[str] = []
+
+    for feature, weight in CATEGORICAL_WEIGHTS.items():
+        target = user_prefs.get(feature)
+        if not target or feature not in song:
+            continue
+        match = categorical_match(song[feature], target)
+        weighted_sum += match * weight
+        active_weight += weight
+        outcome = "match" if match else "no match"
+        reasons.append(
+            f"{feature}: song '{song[feature]}' vs target '{target}' "
+            f"-> {outcome} x weight {weight:.2f}"
+        )
+    return weighted_sum, active_weight, reasons
+
+
+def score_categorical_features(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
     """
-    Weighted proximity score over the numeric features, between 0 and 1.
+    Weighted exact-match score over mood and genre, between 0 and 1.
     Features without a user target are skipped, and the result is divided by the
     total weight of the features that were scored.
-    Returns (score, reasons) with one reason string per scored feature.
     """
+    weighted_sum, active_weight, reasons = _weighted_categorical(user_prefs, song)
+    if active_weight == 0:
+        return 0.0, []
+    return weighted_sum / active_weight, reasons
+
+
+def _weighted_numeric(
+    user_prefs: Dict, song: Dict, width: float = DEFAULT_WIDTH
+) -> Tuple[float, float, List[str]]:
+    """Returns (weighted_sum, active_weight, reasons) for the numeric features."""
     targets = numeric_targets(user_prefs)
     weighted_sum = 0.0
     active_weight = 0.0
@@ -117,6 +157,19 @@ def score_numeric_features(
             f"-> closeness {closeness:.2f} x weight {weight:.2f}"
         )
 
+    return weighted_sum, active_weight, reasons
+
+
+def score_numeric_features(
+    user_prefs: Dict, song: Dict, width: float = DEFAULT_WIDTH
+) -> Tuple[float, List[str]]:
+    """
+    Weighted proximity score over the numeric features, between 0 and 1.
+    Features without a user target are skipped, and the result is divided by the
+    total weight of the features that were scored.
+    Returns (score, reasons) with one reason string per scored feature.
+    """
+    weighted_sum, active_weight, reasons = _weighted_numeric(user_prefs, song, width)
     if active_weight == 0:
         return 0.0, []
     return weighted_sum / active_weight, reasons
@@ -174,9 +227,15 @@ def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
     Required by recommend_songs() and src/main.py
     Returns (score, reasons).
     """
-    # Only numeric features are scored so far. Mood and genre matching will be
-    # added here and combined with the numeric score using their weights.
-    return score_numeric_features(user_prefs, song)
+    # Numeric (energy, valence, acousticness) and categorical (mood, genre)
+    # features share one weight scale. The combined score is divided by the
+    # total weight of the features the user actually specified.
+    num_sum, num_weight, num_reasons = _weighted_numeric(user_prefs, song)
+    cat_sum, cat_weight, cat_reasons = _weighted_categorical(user_prefs, song)
+    total_weight = num_weight + cat_weight
+    if total_weight == 0:
+        return 0.0, []
+    return (num_sum + cat_sum) / total_weight, num_reasons + cat_reasons
 
 def recommend_songs(user_prefs: Dict, songs: List[Dict], k: int = 5) -> List[Tuple[Dict, float, str]]:
     """

@@ -1,6 +1,9 @@
 import pytest
 
 from src.recommender import (
+    categorical_match,
+    score_categorical_features,
+    score_song,
     Song,
     UserProfile,
     Recommender,
@@ -104,9 +107,9 @@ def test_weighted_score_matches_hand_calculation():
 
 # --- load_songs and ranking ------------------------------------------------
 
-def test_load_songs_returns_ten_songs_with_numeric_fields():
+def test_load_songs_returns_fifteen_songs_with_numeric_fields():
     songs = load_songs("data/songs.csv")
-    assert len(songs) == 10
+    assert len(songs) == 15
     first = songs[0]
     assert first["title"] == "Sunrise City"
     assert isinstance(first["id"], int)
@@ -134,3 +137,39 @@ def test_recommender_class_uses_numeric_scoring():
     ]
     user = UserProfile("lofi", "chill", target_energy=0.4, likes_acoustic=True)
     assert Recommender(songs).recommend(user, k=2)[0].title == "Quiet"
+
+
+# --- mood and genre --------------------------------------------------------
+
+def test_categorical_match_ignores_case_and_spaces():
+    assert categorical_match("Lofi ", "lofi") == 1.0
+    assert categorical_match("rock", "pop") == 0.0
+
+
+def test_mood_outweighs_genre():
+    song = {"mood": "intense", "genre": "rock"}
+    mood_only, _ = score_categorical_features({"mood": "intense", "genre": "pop"}, song)
+    genre_only, _ = score_categorical_features({"mood": "chill", "genre": "rock"}, song)
+    assert mood_only == pytest.approx(0.25 / 0.45)
+    assert genre_only == pytest.approx(0.20 / 0.45)
+    assert mood_only > genre_only
+
+
+def test_missing_categorical_target_is_skipped():
+    score, reasons = score_categorical_features({"mood": "chill"}, {"mood": "chill", "genre": "lofi"})
+    assert score == 1.0
+    assert len(reasons) == 1
+
+
+def test_mood_and_genre_match_can_beat_closer_energy():
+    prefs = {"energy": 0.9, "mood": "chill", "genre": "lofi"}
+    matching = {"energy": 0.6, "mood": "chill", "genre": "lofi"}
+    closer_energy = {"energy": 0.9, "mood": "intense", "genre": "rock"}
+    assert score_song(prefs, matching)[0] > score_song(prefs, closer_energy)[0]
+
+
+def test_combined_score_matches_hand_calculation():
+    # energy 1.0 x 0.35, mood match x 0.25, genre miss x 0.20 -> 0.60 / 0.80
+    prefs = {"energy": 0.5, "mood": "chill", "genre": "pop"}
+    song = {"energy": 0.5, "mood": "chill", "genre": "lofi"}
+    assert score_song(prefs, song)[0] == pytest.approx(0.60 / 0.80)
